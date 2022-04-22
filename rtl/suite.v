@@ -27,12 +27,15 @@ module suite (
   parameter HTOTAL = H + HFP + HS + HBP;  // 400
 
   parameter V = 240;  // height of visible area (lines)
-  parameter VFP = 2;  // unused time before vsync (lines)
+  parameter VFP = 1;  // unused time before vsync (lines)
   parameter VS = 8;  // width of vsync (lines)
   parameter VBP = 6;  // unused time after vsync (lines)
-  parameter VTOTAL = V + VFP + VS + VBP;  // 256
+  parameter VTOTAL = V + VFP + VS + VBP;  // 255
 
-  // --- Clock divider (clk / 4 = 6.144 Mhz)
+  parameter HHALF = H / 2;  // center of visible Horizontal raster
+  parameter VHALF = V / 2;  // center of visible Vertical raster
+
+  // --- Clock divider (clk / 4 = 6.1363 Mhz)
   always @(posedge clk) begin
     reg [1:0] div;
 
@@ -79,11 +82,29 @@ module suite (
 
   // --- Video
   always @(posedge clk) begin
-    if (hc < H && vc < V) begin
-      video <= 8'd255;
+    video <= 8'd0;
 
-      if (hc > 0 && hc < H - 1 && vc > 1 && vc < V - 1) video <= 8'd0;
-    end else video <= 8'd0;
+    if (hc < H && vc < V) begin
+      // --- Visible raster square (320x240)
+      // Top and Bottom line
+      if ((vc == 0 || vc == V - 1) && hc >= 0 && hc < H) video <= 8'd255;
+      // Left and Right line
+      if ((hc == 0 || hc == H - 1) && vc >= 0 && vc < V) video <= 8'd255;
+
+      // --- Center Lines (double)
+      // H Center lines
+      if ((vc == VHALF || vc == VHALF + 1) && hc >= 0 && hc < H) video <= 8'd255;
+      // V Center lines
+      if ((hc == HHALF || hc == HHALF + 1) && vc >= 0 && vc < V) video <= 8'd255;
+
+      // --- Center Square (100x100)
+      // Center square top and bottom lines
+      if ((vc == VHALF - 50 || vc == VHALF + 50) && hc >= HHALF - 50 && hc < HHALF + 50)
+        video <= 8'd255;
+      // Center square left and right lines
+      if ((hc == HHALF - 50 || hc == HHALF + 50) && vc >= VHALF - 50 && vc < VHALF + 50)
+        video <= 8'd255;
+    end
   end
 
 endmodule
