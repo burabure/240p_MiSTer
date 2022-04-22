@@ -39,7 +39,7 @@ module hps_io #(parameter CONF_STR, CONF_STR_BRAM=1, PS2DIV=0, WIDE=0, VDNUM=1, 
 	output reg [31:0] joystick_3,
 	output reg [31:0] joystick_4,
 	output reg [31:0] joystick_5,
-	
+
 	// analog -127..+127, Y: [15:8], X: [7:0]
 	output reg [15:0] joystick_l_analog_0,
 	output reg [15:0] joystick_l_analog_1,
@@ -281,7 +281,7 @@ always@(posedge clk_sys) begin : uio_block
 		stflg <= stflg + 1'd1;
 		status_req <= status_in;
 	end
-	
+
 	old_upload_req <= ioctl_upload_req;
 	if(~old_upload_req & ioctl_upload_req) upload_req <= 1;
 
@@ -515,7 +515,7 @@ always@(posedge clk_sys) begin : uio_block
 
 				//menu mask
 				'h2E: if(byte_cnt == 1) io_dout <= status_menumask;
-				
+
 				//sdram size set
 				'h31: if(byte_cnt == 1) sdram_sz <= io_din;
 
@@ -622,7 +622,7 @@ always@(posedge clk_sys) begin : fio_block
 	reg        has_cmd;
 	reg [26:0] addr;
 	reg        wr;
-	
+
 	ioctl_rd <= 0;
 	ioctl_wr <= wr;
 	wr <= 0;
@@ -655,7 +655,7 @@ always@(posedge clk_sys) begin : fio_block
 					FIO_FILE_TX:
 						begin
 							cnt <= cnt + 1'd1;
-							case(cnt) 
+							case(cnt)
 								0:	if(io_din[7:0] == 8'hAA) begin
 										ioctl_addr <= 0;
 										ioctl_upload <= 1;
