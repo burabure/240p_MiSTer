@@ -20,19 +20,19 @@ module suite (
   reg [9:0] hc;  // horizontal pixel counter
   reg [9:0] vc;  // vertical line counter
 
-  parameter H = 360;  // width of visible area (pixels)
+  parameter H = 320;  // width of visible area (pixels)
   parameter HFP = 8;  // unused time before hsync (pixels)
   parameter HS = 32;  // width of hsync (pixels)
-  parameter HBP = 29;  // unused time after hsync (pixels)
-  parameter HTOTAL = H + HFP + HS + HBP;
+  parameter HBP = 40;  // unused time after hsync (pixels)
+  parameter HTOTAL = H + HFP + HS + HBP;  // 400
 
   parameter V = 240;  // height of visible area (lines)
-  parameter VFP = 3;  // unused time before vsync (lines)
-  parameter VS = 3;  // width of vsync (lines)
-  parameter VBP = 17;  // unused time after vsync (lines)
-  parameter VTOTAL = V + VFP + VS + VBP;
+  parameter VFP = 2;  // unused time before vsync (lines)
+  parameter VS = 8;  // width of vsync (lines)
+  parameter VBP = 6;  // unused time after vsync (lines)
+  parameter VTOTAL = V + VFP + VS + VBP;  // 256
 
-  // --- Clock divider
+  // --- Clock divider (clk / 4 = 6.144 Mhz)
   always @(posedge clk) begin
     reg [1:0] div;
 
