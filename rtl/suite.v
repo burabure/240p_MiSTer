@@ -20,22 +20,28 @@ module suite (
   reg [9:0] hc;  // horizontal pixel counter
   reg [9:0] vc;  // vertical line counter
 
-  parameter H = 320;  // width of visible area (pixels)
-  parameter HFP = 8;  // unused time before hsync (pixels)
-  parameter HS = 32;  // width of hsync (pixels)
-  parameter HBP = 40;  // unused time after hsync (pixels)
-  parameter HTOTAL = H + HFP + HS + HBP;  // 400
+  // --- VESA CVT
+  // 6.00 Mhz Pixel Clock
+  // 4:3 - Square Pixel Ratio
+  // H Sync Polarity - / V Sync Polarity +
+  // H Freq = 15 kHz - H Period = 66.667 us
+  // V Freq = 59.289 Hz - V Period = 16.867 ms
+  parameter H = 320;  // Horizontal Active Area (pixels)
+  parameter HFP = 8;  // Horizontal Fron Porch (pixels)
+  parameter HS = 32;  // HSync Pulse Width (pixels)
+  parameter HBP = 40;  // Horizontal Back Porch (pixels)
+  parameter HTOTAL = H + HFP + HS + HBP;  // 400 pixels
 
-  parameter V = 240;  // height of visible area (lines)
-  parameter VFP = 1;  // unused time before vsync (lines)
-  parameter VS = 8;  // width of vsync (lines)
-  parameter VBP = 6;  // unused time after vsync (lines)
-  parameter VTOTAL = V + VFP + VS + VBP;  // 255
+  parameter V = 240;  // Vertical Active Area (lines)
+  parameter VFP = 3;  // Vertical Front Porch (lines)
+  parameter VS = 4;  // VSync Pulse Width (lines)
+  parameter VBP = 6;  // Vertical Back Porch (lines)
+  parameter VTOTAL = V + VFP + VS + VBP;  // 253 lines
 
   parameter HHALF = H / 2;  // center of visible Horizontal raster
   parameter VHALF = V / 2;  // center of visible Vertical raster
 
-  // --- Clock divider (clk / 4 = 6.1363 Mhz)
+  // --- Clock divider (clk / 4 = 7.25 Mhz)
   always @(posedge clk) begin
     reg [1:0] div;
 
@@ -68,7 +74,7 @@ module suite (
     else if (hc == 0) HBlank <= 0;
 
     if (hc == H + HFP) begin
-      HSync <= 1;
+      HSync <= 0;
 
       if (vc == V + VFP) VSync <= 1;
       else if (vc == V + VFP + VS) VSync <= 0;
@@ -77,32 +83,50 @@ module suite (
       else if (vc == 0) VBlank <= 0;
     end
 
-    if (hc == H + HFP + HS) HSync <= 0;
+    if (hc == H + HFP + HS) HSync <= 1;
   end
 
   // --- Video
   always @(posedge clk) begin
-    video <= 8'd0;
+    video <= 8'd00;
 
-    if (hc < H && vc < V) begin
+    if (hc <= H && vc <= V) begin
+      video <= 8'd77; // 30 IRE
+
       // --- Visible raster square (320x240)
       // Top and Bottom line
-      if ((vc == 0 || vc == V - 1) && hc >= 0 && hc < H) video <= 8'd255;
+      if ((vc == 1 || vc == V) && hc >= 0 && hc <= H) video <= 8'd255;
       // Left and Right line
-      if ((hc == 0 || hc == H - 1) && vc >= 0 && vc < V) video <= 8'd255;
+      if ((hc == 0 || hc == H - 1) && vc >= 0 && vc <= V) video <= 8'd255;
 
       // --- Center Lines (double)
       // H Center lines
-      if ((vc == VHALF || vc == VHALF + 1) && hc >= 0 && hc < H) video <= 8'd255;
+      if ((vc == VHALF || vc == VHALF + 1) && hc >= 0 && hc <= H) video <= 8'd255;
       // V Center lines
-      if ((hc == HHALF || hc == HHALF + 1) && vc >= 0 && vc < V) video <= 8'd255;
+      if ((hc == HHALF || hc == HHALF + 1) && vc >= 0 && vc <= V) video <= 8'd255;
 
       // --- Center Square (100x100)
       // Center square top and bottom lines
-      if ((vc == VHALF - 50 || vc == VHALF + 50) && hc >= HHALF - 50 && hc < HHALF + 50)
+      if ((vc == VHALF - 50 || vc == VHALF + 50) && hc >= HHALF - 50 && hc <= HHALF + 50)
         video <= 8'd255;
       // Center square left and right lines
-      if ((hc == HHALF - 50 || hc == HHALF + 50) && vc >= VHALF - 50 && vc < VHALF + 50)
+      if ((hc == HHALF - 50 || hc == HHALF + 50) && vc >= VHALF - 50 && vc <= VHALF + 50)
+        video <= 8'd255;
+
+      // --- ACTION SAFE (288x216)
+      // Center square top and bottom lines
+      if ((vc == 13 || vc == V - 13) && hc >= 16 && hc <= H - 16)
+        video <= 8'd255;
+      // Center square left and right lines
+      if ((hc == 16 || hc == H - 16) && vc >= 13 && vc <= V - 13)
+        video <= 8'd255;
+
+      // --- TITLE SAFE (256x192)
+      // Center square top and bottom lines
+      if ((vc == 25 || vc == V -25 ) && hc >= 32 && hc <= H - 32)
+        video <= 8'd255;
+      // Center square left and right lines
+      if ((hc == 32 || hc == H - 32) && vc >= 25 && vc <= V - 25)
         video <= 8'd255;
     end
   end
