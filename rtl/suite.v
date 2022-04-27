@@ -21,29 +21,27 @@ module suite (
   reg [9:0] vc;  // vertical line counter
 
   // --- Custom VESA Timings
-  // 6.1795 Mhz Pixel Clock
+  // 6.4 Mhz Pixel Clock
   // 4:3 - Square Pixel Ratio
   // H Sync Polarity - / V Sync Polarity +
-
-  // H Freq = 15 kHz - H Period = 66.667 us
-  // V Freq = 59.289 Hz - V Period = 16.867 ms
-
+  // H Freq = 15.96 kHz
+  // V Freq = 58.9 Hz
   parameter H = 320;  // Horizontal Active Area (pixels)
-  parameter HFP = 15;  // Horizontal Fron Porch (pixels)
+  parameter HFP = 13;  // Horizontal Fron Porch (pixels)
   parameter HS = 32;  // HSync Pulse Width (pixels)
-  parameter HBP = 33;  // Horizontal Back Porch (pixels)
+  parameter HBP = 35;  // Horizontal Back Porch (pixels)
   parameter HTOTAL = H + HFP + HS + HBP;  // 400 pixels
 
   parameter V = 240;  // Vertical Active Area (lines)
-  parameter VFP = 7;  // Vertical Front Porch (lines)
+  parameter VFP = 9;  // Vertical Front Porch (lines)
   parameter VS = 8;  // VSync Pulse Width (lines)
-  parameter VBP = 10;  // Vertical Back Porch (lines)
-  parameter VTOTAL = V + VFP + VS + VBP;  // 253 lines
+  parameter VBP = 13;  // Vertical Back Porch (lines)
+  parameter VTOTAL = V + VFP + VS + VBP;  // 270 lines
 
   parameter HHALF = H / 2;  // center of visible Horizontal raster
   parameter VHALF = V / 2;  // center of visible Vertical raster
 
-  // --- Clock divider (clk / 4 = 6.1795 Mhz)
+  // --- Clock divider (clk / 4 = 6.4 Mhz)
   always @(posedge clk) begin
     reg [1:0] div;
 
