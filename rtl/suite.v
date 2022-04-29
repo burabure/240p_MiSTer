@@ -27,9 +27,9 @@ module suite (
   // H Freq = 16.03 kHz
   // V Freq = 60 Hz
   parameter H = 320;  // Horizontal Active Area (pixels)
-  parameter HFP = 9;  // Horizontal Fron Porch (pixels)
+  parameter HFP = 8;  // Horizontal Fron Porch (pixels)
   parameter HS = 32;  // HSync Pulse Width (pixels)
-  parameter HBP = 31;  // Horizontal Back Porch (pixels)
+  parameter HBP = 32;  // Horizontal Back Porch (pixels)
   parameter HTOTAL = H + HFP + HS + HBP;  // 392 pixels
 
   parameter V = 240;  // Vertical Active Area (lines)
