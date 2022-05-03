@@ -44,7 +44,7 @@ module emu (
     output [7:0] VGA_B,
     output       VGA_HS,
     output       VGA_VS,
-    output       VGA_DE,     // = ~(VBlank | HBlank)
+    output       VGA_DE,     // = ~(v_blank | h_blank)
     output       VGA_F1,
     output [1:0] VGA_SL,
     output       VGA_SCALER, // Force VGA scaler
@@ -203,24 +203,8 @@ module emu (
   localparam CONF_STR = {
     "240p Suite;;",
     "-;",
-    "O89,Aspect ratio,Original,Full Screen,[ARC1],[ARC2];",
-    "O2,TV Mode,NTSC,PAL;",
-    "O34,Noise,White,Red,Green,Blue;",
     "-;",
-    "P1,Test Page 1;",
-    "P1-;",
-    "P1-, -= Options in page 1 =-;",
-    "P1-;",
-    "P1O5,Option 1-1,Off,On;",
-    "d0P1F1,BIN;",
-    "H0P1O6,Option 1-2,Off,On;",
     "-;",
-    "P2,Test Page 2;",
-    "P2-;",
-    "P2-, -= Options in page 2 =-;",
-    "P2-;",
-    "P2S0,DSK;",
-    "P2O67,Option 2,1,2,3,4;",
     "-;",
     "-;",
     "T0,Reset;",
@@ -264,42 +248,24 @@ module emu (
 
   //////////////////////////////////////////////////////////////////
 
-  wire [1:0] col = status[4:3];
-
-  wire HBlank;
-  wire HSync;
-  wire VBlank;
-  wire VSync;
-  wire ce_fix;
-  wire [7:0] video;
+  wire h_blank;
+  wire v_blank;
 
   suite suite (
-      .clk  (clk_sys),
+      .clk(clk_sys),
       .reset(reset),
-
-      // TODO: Maybe later
-      //   .pal(status[2]),
-      //   .scandouble(forced_scandoubler),
-
-      .ce_pix(ce_pix),
-
-      .HBlank(HBlank),
-      .HSync (HSync),
-      .VBlank(VBlank),
-      .VSync (VSync),
-
-      .video(video)
+      .ce_pix(CE_PIXEL),
+      .h_blank(h_blank),
+      .h_sync(VGA_HS),
+      .v_blank(v_blank),
+      .v_sync(VGA_VS),
+      .r(VGA_R),
+      .g(VGA_G),
+      .b(VGA_B)
   );
 
   assign CLK_VIDEO = clk_sys;
-  assign CE_PIXEL = ce_pix;
-
-  assign VGA_DE = ~(HBlank | VBlank);
-  assign VGA_HS = HSync;
-  assign VGA_VS = VSync;
-  assign VGA_R = (!col || col == 1) ? video : 8'd0;
-  assign VGA_G = (!col || col == 2) ? video : 8'd0;
-  assign VGA_B = (!col || col == 3) ? video : 8'd0;
+  assign VGA_DE = ~(h_blank | v_blank);
 
   reg [26:0] act_cnt;
   always @(posedge clk_sys) act_cnt <= act_cnt + 1'd1;
