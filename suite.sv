@@ -202,13 +202,13 @@ module emu (
   `include "build_id.v"
   localparam CONF_STR = {
     "240p Suite;;",
+    "F1,BIN,Load Image;",
     "-;",
-    "-;",
-    "-;",
-    "-;",
+    "O89,Aspect ratio,Original,Full Screen,[ARC1],[ARC2];",
     "-;",
     "T0,Reset;",
     "R0,Reset and close OSD;",
+    "-;",
     "V,v",
     `BUILD_DATE
   };
@@ -218,8 +218,14 @@ module emu (
   wire [31:0] status;
   wire [10:0] ps2_key;
 
+  wire        ioctl_download;
+  wire [ 7:0] ioctl_dout;
+  wire        ioctl_wr;
+  wire [26:0] ioctl_addr;
+
   hps_io #(
-      .CONF_STR(CONF_STR)
+      .CONF_STR(CONF_STR),
+      .WIDE(0)
   ) hps_io (
       .clk_sys  (clk_sys),
       .HPS_BUS  (HPS_BUS),
@@ -231,6 +237,11 @@ module emu (
       .buttons(buttons),
       .status(status),
       .status_menumask({status[5]}),
+
+      .ioctl_download(ioctl_download),
+      .ioctl_wr(ioctl_wr),
+      .ioctl_addr(ioctl_addr),
+      .ioctl_dout(ioctl_dout),
 
       .ps2_key(ps2_key)
   );
@@ -252,20 +263,25 @@ module emu (
   wire v_blank;
 
   suite suite (
-      .clk(clk_sys),
+      .clk  (clk_sys),
       .reset(reset),
+
+      .ioctl_wr  (ioctl_wr & ioctl_download),
+      .ioctl_addr(ioctl_addr[16:0]),
+      .ioctl_data(ioctl_dout),
+
       .ce_pix(CE_PIXEL),
-      .h_blank(h_blank),
+      //.h_blank(h_blank),
+      //.v_blank(v_blank),
       .h_sync(VGA_HS),
-      .v_blank(v_blank),
       .v_sync(VGA_VS),
+      .de(VGA_DE),
       .r(VGA_R),
       .g(VGA_G),
       .b(VGA_B)
   );
 
   assign CLK_VIDEO = clk_sys;
-  assign VGA_DE = ~(h_blank | v_blank);
 
   reg [26:0] act_cnt;
   always @(posedge clk_sys) act_cnt <= act_cnt + 1'd1;

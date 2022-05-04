@@ -3,6 +3,11 @@ module suite (
     input clk,
     input reset,
 
+    // CPU interface (write only!)
+    input ioctl_wr,
+    input [16:0] ioctl_addr,
+    input [7:0] ioctl_data,
+
     // TODO: Maybe later
     // input pal,
     // input scandouble,
@@ -12,6 +17,7 @@ module suite (
     output reg h_sync,
     output reg v_blank,
     output reg v_sync,
+    output reg de,
     output [7:0] r,
     output [7:0] g,
     output [7:0] b
@@ -86,51 +92,45 @@ module suite (
     if (hc == H + HFP + HS) h_sync <= 1;
   end
 
+
+  // --- VRAM
+  reg  [16:0] video_counter;
+  wire [ 7:0] pixel;
+
+  dpram #(
+      .init_file("monoscope.hex"),
+      .widthad_a(17),
+      .width_a  (8)
+  ) vmem (
+      .clock_a(clk),
+      .address_a(video_counter),
+      .wren_a(1'b0),
+      .q_a(pixel),
+
+      .clock_b(clk),
+      .wren_b(ioctl_wr),
+      .address_b(ioctl_addr),
+      .data_b(ioctl_data)
+  );
+
+
   // --- Video
-  reg [7:0] pixel;
-
   always @(posedge clk) begin
-    pixel <= 8'd00;
-
-    if (hc <= H && vc <= V) begin
-      pixel <= 8'd77;  // 30 IRE
-
-      // --- Visible raster square (320x240)
-      // Top and Bottom line
-      if ((vc == 1 || vc == V) && hc >= 0 && hc <= H) pixel <= 8'd255;
-      // Left and Right line
-      if ((hc == 0 || hc == H - 1) && vc >= 0 && vc <= V) pixel <= 8'd255;
-
-      // --- Center Lines (double)
-      // H Center lines
-      if ((vc == VHALF || vc == VHALF + 1) && hc >= 0 && hc <= H) pixel <= 8'd255;
-      // V Center lines
-      if ((hc == HHALF || hc == HHALF + 1) && vc >= 0 && vc <= V) pixel <= 8'd255;
-
-      // --- Center Square (100x100)
-      // Center square top and bottom lines
-      if ((vc == VHALF - 50 || vc == VHALF + 50) && hc >= HHALF - 50 && hc <= HHALF + 50)
-        pixel <= 8'd255;
-      // Center square left and right lines
-      if ((hc == HHALF - 50 || hc == HHALF + 50) && vc >= VHALF - 50 && vc <= VHALF + 50)
-        pixel <= 8'd255;
-
-      // --- ACTION SAFE (288x216)
-      // Center square top and bottom lines
-      if ((vc == 13 || vc == V - 13) && hc >= 16 && hc <= H - 16) pixel <= 8'd255;
-      // Center square left and right lines
-      if ((hc == 16 || hc == H - 16) && vc >= 13 && vc <= V - 13) pixel <= 8'd255;
-
-      // --- TITLE SAFE (256x192)
-      // Center square top and bottom lines
-      if ((vc == 25 || vc == V - 25) && hc >= 32 && hc <= H - 32) pixel <= 8'd127;
-      // Center square left and right lines
-      if ((hc == 32 || hc == H - 32) && vc >= 25 && vc <= V - 25) pixel <= 8'd127;
+    if (ce_pix) begin
+      if (hc < H && vc < V) begin
+        video_counter <= video_counter + 17'd1;
+      end else begin
+        if (hc == H + HFP) begin
+          if (vc == V + VFP) video_counter <= 17'd0;
+        end
+      end
     end
   end
 
-  assign r = pixel;
-  assign g = pixel;
-  assign b = pixel;
+  // seperate 8 bits into three colors (332)
+  assign r  = {pixel[7:5], pixel[7:5], pixel[7:6]};
+  assign g  = {pixel[4:2], pixel[4:2], pixel[4:3]};
+  assign b  = {pixel[1:0], pixel[1:0], pixel[1:0], pixel[1:0]};
 
+  assign de = ~(h_blank | v_blank);
 endmodule
