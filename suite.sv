@@ -217,6 +217,7 @@ module emu (
   wire [ 1:0] buttons;
   wire [31:0] status;
   wire [10:0] ps2_key;
+  wire [31:0] joy;
 
   wire        ioctl_download;
   wire [ 7:0] ioctl_dout;
@@ -237,6 +238,7 @@ module emu (
       .buttons(buttons),
       .status(status),
       .status_menumask({status[5]}),
+      .joystick_0(joy),
 
       .ioctl_download(ioctl_download),
       .ioctl_wr(ioctl_wr),
@@ -269,6 +271,8 @@ module emu (
       .ioctl_wr  (ioctl_wr & ioctl_download),
       .ioctl_addr(ioctl_addr[16:0]),
       .ioctl_data(ioctl_dout),
+
+      .layer_1_enable(~joy[4]),
 
       .ce_pix(CE_PIXEL),
       //.h_blank(h_blank),

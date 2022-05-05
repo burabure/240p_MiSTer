@@ -4,3 +4,4 @@ set_global_assignment -name SYSTEMVERILOG_FILE rtl/suite.v
 set_global_assignment -name SDC_FILE suite.sdc
 set_global_assignment -name SYSTEMVERILOG_FILE suite.sv
 set_global_assignment -name VHDL_FILE rtl/dpram.vhd
+set_global_assignment -name VERILOG_FILE rtl/rom.v

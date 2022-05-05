@@ -12,6 +12,8 @@ module suite (
     // input pal,
     // input scandouble,
 
+    input layer_1_enable,
+
     output reg ce_pix,
     output reg h_blank,
     output reg h_sync,
@@ -96,23 +98,30 @@ module suite (
   // --- VRAM
   reg  [16:0] video_counter;
   wire [ 7:0] pixel;
+  wire [ 7:0] layer_1;
+  wire [ 7:0] layer_2;
 
-  dpram #(
-      .init_file("monoscope.hex"),
-      .widthad_a(17),
-      .width_a  (8)
-  ) vmem (
-      .clock_a(clk),
-      .address_a(video_counter),
-      .wren_a(1'b0),
-      .q_a(pixel),
-
-      .clock_b(clk),
-      .wren_b(ioctl_wr),
-      .address_b(ioctl_addr),
-      .data_b(ioctl_data)
+  rom #(
+      .AW(17),
+      .DW(8),
+      .memfile("monoscope_1.hex")
+  ) monoscope_1 (
+      .clock(clk),
+      .ce(1'b1),
+      .address(video_counter),
+      .q(layer_1)
   );
 
+  rom #(
+      .AW(17),
+      .DW(8),
+      .memfile("monoscope_2.hex")
+  ) monoscope_2 (
+      .clock(clk),
+      .ce(1'b1),
+      .address(video_counter),
+      .q(layer_2)
+  );
 
   // --- Video
   always @(posedge clk) begin
@@ -124,6 +133,18 @@ module suite (
           if (vc == V + VFP) video_counter <= 17'd0;
         end
       end
+    end
+  end
+
+  // layer rendering
+  always @(posedge clk) begin
+    if (ce_pix) begin
+      if (layer_2 == 8'd0) begin
+        // switch layer 1 intensity
+        if (layer_1 == 8'hFF && layer_1_enable) pixel <= 8'hFF;
+        else pixel <= 8'h00;
+
+      end else pixel <= layer_2;
     end
   end
 

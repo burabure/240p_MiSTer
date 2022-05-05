@@ -28,7 +28,6 @@ set_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS OFF
 set_global_assignment -name OPTIMIZE_POWER_DURING_FITTING OFF
 set_global_assignment -name FINAL_PLACEMENT_OPTIMIZATION ALWAYS
 set_global_assignment -name FITTER_EFFORT "STANDARD FIT"
-set_global_assignment -name OPTIMIZATION_MODE "HIGH PERFORMANCE EFFORT"
 set_global_assignment -name ALLOW_POWER_UP_DONT_CARE ON
 set_global_assignment -name QII_AUTO_PACKED_REGISTERS NORMAL
 set_global_assignment -name ROUTER_LCELL_INSERTION_AND_LOGIC_DUPLICATION ON
@@ -50,13 +49,23 @@ set_global_assignment -name PHYSICAL_SYNTHESIS_ASYNCHRONOUS_SIGNAL_PIPELINING ON
 set_global_assignment -name ALM_REGISTER_PACKING_EFFORT MEDIUM
 set_global_assignment -name SEED 1
 
+# --- UNCOMMENT ONLY ONE BUILD BLOCK
+
+# RELEASE BUILDS
+#set_global_assignment -name OPTIMIZATION_MODE "HIGH PERFORMANCE EFFORT"
+#set_global_assignment -name PLACEMENT_EFFORT_MULTIPLIER 4
+
+# FAST DEBUG BUILDS
+set_global_assignment -name VERILOG_MACRO "MISTER_DEBUG_NOHDMI=1"
+set_global_assignment -name OPTIMIZATION_MODE BALANCED
+set_global_assignment -name PLACEMENT_EFFORT_MULTIPLIER 1
+
+# --- END BUILD BLOCK
+
 #set_global_assignment -name VERILOG_MACRO "MISTER_FB=1"
 
 #enable it only if 8bit indexed mode is used in core
 #set_global_assignment -name VERILOG_MACRO "MISTER_FB_PALETTE=1"
-
-#do not enable DEBUG_NOHDMI in release!
-#set_global_assignment -name VERILOG_MACRO "MISTER_DEBUG_NOHDMI=1"
 
 # disable bilinear filtering when downscaling
 #set_global_assignment -name VERILOG_MACRO "MISTER_DOWNSCALE_NN=1"
