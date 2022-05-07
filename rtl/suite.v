@@ -54,7 +54,7 @@ module suite (
     reg [1:0] div;
 
     div <= div + 1'd1;
-    ce_pix <= !div;
+    ce_pix <= div == 2'd0;
   end
 
   // --- Counters
@@ -97,7 +97,7 @@ module suite (
 
   // --- VRAM
   reg  [16:0] video_counter;
-  wire [ 7:0] pixel;
+  reg  [ 7:0] pixel;
   wire [ 7:0] layer_1;
   wire [ 7:0] layer_2;
 

@@ -1,5 +1,3 @@
-set_global_assignment -name VERILOG_FILE rtl/lfsr.v
-set_global_assignment -name SYSTEMVERILOG_FILE rtl/cos.sv
 set_global_assignment -name SYSTEMVERILOG_FILE rtl/suite.v
 set_global_assignment -name SDC_FILE suite.sdc
 set_global_assignment -name SYSTEMVERILOG_FILE suite.sv
