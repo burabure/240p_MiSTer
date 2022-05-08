@@ -78,20 +78,22 @@ module suite (
 
   // --- Blanking
   always @(posedge clk) begin
-    if (hc == H) h_blank <= 1;
-    else if (hc == 0) h_blank <= 0;
+    if (ce_pix) begin
+      if (hc == H) h_blank <= 1;
+      else if (hc == 0) h_blank <= 0;
 
-    if (hc == H + HFP) begin
-      h_sync <= 0;
+      if (hc == H + HFP) begin
+        h_sync <= 0;
 
-      if (vc == V + VFP) v_sync <= 1;
-      else if (vc == V + VFP + VS) v_sync <= 0;
+        if (vc == V + VFP) v_sync <= 1;
+        else if (vc == V + VFP + VS) v_sync <= 0;
 
-      if (vc == V) v_blank <= 1;
-      else if (vc == 0) v_blank <= 0;
+        if (vc == V) v_blank <= 1;
+        else if (vc == 0) v_blank <= 0;
+      end
+
+      if (hc == H + HFP + HS) h_sync <= 1;
     end
-
-    if (hc == H + HFP + HS) h_sync <= 1;
   end
 
 
@@ -128,6 +130,7 @@ module suite (
     if (ce_pix) begin
       if (hc < H && vc < V) begin
         video_counter <= video_counter + 17'd1;
+        $display("HC: %d - VC: %d - VidC: %d", hc, vc, video_counter);
       end else begin
         if (hc == H + HFP) begin
           if (vc == V + VFP) video_counter <= 17'd0;

@@ -52,13 +52,13 @@ set_global_assignment -name SEED 1
 # --- UNCOMMENT ONLY ONE BUILD BLOCK
 
 # RELEASE BUILDS
-#set_global_assignment -name OPTIMIZATION_MODE "HIGH PERFORMANCE EFFORT"
-#set_global_assignment -name PLACEMENT_EFFORT_MULTIPLIER 4
+set_global_assignment -name OPTIMIZATION_MODE "HIGH PERFORMANCE EFFORT"
+set_global_assignment -name PLACEMENT_EFFORT_MULTIPLIER 4
 
 # FAST DEBUG BUILDS
-set_global_assignment -name VERILOG_MACRO "MISTER_DEBUG_NOHDMI=1"
-set_global_assignment -name OPTIMIZATION_MODE BALANCED
-set_global_assignment -name PLACEMENT_EFFORT_MULTIPLIER 1
+#set_global_assignment -name VERILOG_MACRO "MISTER_DEBUG_NOHDMI=1"
+#set_global_assignment -name OPTIMIZATION_MODE BALANCED
+#set_global_assignment -name PLACEMENT_EFFORT_MULTIPLIER 1
 
 # --- END BUILD BLOCK
 

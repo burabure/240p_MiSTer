@@ -38,7 +38,7 @@ int multi_step_amount = 1024;
 
 // Debug GUI
 // ---------
-const char* windowTitle = "Verilator Sim: Arcade-Centipede";
+const char* windowTitle = "Verilator Sim: 240p Suite";
 const char* windowTitle_Control = "Simulation control";
 const char* windowTitle_DebugLog = "Debug log";
 const char* windowTitle_Video = "VGA output";
@@ -76,7 +76,7 @@ const int input_pause = 11;
 #define VGA_SCALE_X vga_scale
 #define VGA_SCALE_Y vga_scale
 SimVideo video(VGA_WIDTH, VGA_HEIGHT, VGA_ROTATE);
-float vga_scale = 2.5;
+float vga_scale = 4;
 
 // Verilog module
 // --------------
@@ -248,7 +248,7 @@ int main(int argc, char** argv, char** env) {
 	// Setup video output
 	if (video.Initialise(windowTitle) == 1) { return 1; }
 
-	bus.QueueDownload("./test.bin", 0, true);
+	// bus.QueueDownload("./test.bin", 0, true);
 
 
 #ifdef WIN32

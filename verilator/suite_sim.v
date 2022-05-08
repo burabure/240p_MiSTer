@@ -71,7 +71,7 @@ module top (
       .ioctl_addr(ioctl_addr[16:0]),
       .ioctl_data(ioctl_dout),
 
-      .layer_1_enable(~joystick[4]),
+      .layer_1_enable(playerinput[0]),
 
       .ce_pix(CE_PIXEL),
       .h_blank(VGA_HB),

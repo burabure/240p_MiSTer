@@ -111,12 +111,6 @@
     <None Include="rom.hex">
       <DeploymentContent>true</DeploymentContent>
     </None>
-    <None Include="../rtl/monoscope_1.hex">
-      <DeploymentContent>true</DeploymentContent>
-    </None>
-    <None Include="../rtl/monoscope_2.hex">
-      <DeploymentContent>true</DeploymentContent>
-    </None>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
