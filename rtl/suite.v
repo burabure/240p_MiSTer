@@ -15,11 +15,11 @@ module suite (
     input layer_1_enable,
 
     output reg ce_pix,
-    output reg h_blank,
-    output reg h_sync,
-    output reg v_blank,
-    output reg v_sync,
-    output reg de,
+    output wire h_blank,
+    output wire h_sync,
+    output wire v_blank,
+    output wire v_sync,
+    output wire de,
     output [7:0] r,
     output [7:0] g,
     output [7:0] b
@@ -46,9 +46,6 @@ module suite (
   parameter VBP = 12;  // Vertical Back Porch (lines)
   parameter VTOTAL = V + VFP + VS + VBP;  // 266 lines
 
-  parameter HHALF = H / 2;  // center of visible Horizontal raster
-  parameter VHALF = V / 2;  // center of visible Vertical raster
-
   // --- Clock divider (clk / 4 = 6.3 Mhz)
   always @(posedge clk) begin
     reg [1:0] div;
@@ -65,22 +62,19 @@ module suite (
     end else if (ce_pix) begin
       if (hc == HTOTAL) begin
         hc <= 0;
-        if (vc == VTOTAL) begin
-          vc <= 0;
-        end else begin
-          vc <= vc + 1'd1;
-        end
-      end else begin
-        hc <= hc + 1'd1;
-      end
+
+        if (vc == VTOTAL) vc <= 0;
+        else vc <= vc + 1'd1;
+
+      end else hc <= hc + 1'd1;
     end
   end
 
   // --- Blanking
   always @(posedge clk) begin
     if (ce_pix) begin
-      if (hc == H) h_blank <= 1;
-      else if (hc == 0) h_blank <= 0;
+      if (hc == H - 1) h_blank <= 1;
+      else if (hc == HTOTAL) h_blank <= 0;
 
       if (hc == H + HFP) begin
         h_sync <= 0;
@@ -88,8 +82,8 @@ module suite (
         if (vc == V + VFP) v_sync <= 1;
         else if (vc == V + VFP + VS) v_sync <= 0;
 
-        if (vc == V) v_blank <= 1;
-        else if (vc == 0) v_blank <= 0;
+        if (vc == V - 1) v_blank <= 1;
+        else if (vc == VTOTAL) v_blank <= 0;
       end
 
       if (hc == H + HFP + HS) h_sync <= 1;
@@ -130,7 +124,6 @@ module suite (
     if (ce_pix) begin
       if (hc < H && vc < V) begin
         video_counter <= video_counter + 17'd1;
-        $display("HC: %d - VC: %d - VidC: %d", hc, vc, video_counter);
       end else begin
         if (hc == H + HFP) begin
           if (vc == V + VFP) video_counter <= 17'd0;
@@ -140,15 +133,12 @@ module suite (
   end
 
   // layer rendering
-  always @(posedge clk) begin
-    if (ce_pix) begin
-      if (layer_2 == 8'd0) begin
-        // switch layer 1 intensity
-        if (layer_1 == 8'hFF && layer_1_enable) pixel <= 8'hFF;
-        else pixel <= 8'h00;
+  always @(negedge clk) begin
+    if (layer_2 == 8'd0) begin
+      if (layer_1 == 8'hFF && layer_1_enable) pixel <= 8'hFF;
+      else pixel <= 8'h00;
 
-      end else pixel <= layer_2;
-    end
+    end else pixel <= layer_2;
   end
 
   // seperate 8 bits into three colors (332)
@@ -157,4 +147,15 @@ module suite (
   assign b  = {pixel[1:0], pixel[1:0], pixel[1:0], pixel[1:0]};
 
   assign de = ~(h_blank | v_blank);
+
+  // --- Logging
+  always @(posedge clk) begin
+    if (ce_pix) begin
+      if ((hc < 4 || hc > H - 4 && hc < H + 2) && (vc < 4 || vc > V - 4 && vc < V + 2)) begin
+        $display("HC: %d - VC: %d - VidC: %d - DE: %d - Pixel: %h", hc, vc, video_counter, de,
+                 pixel);
+      end
+    end
+  end
+
 endmodule

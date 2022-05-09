@@ -344,7 +344,7 @@ int main(int argc, char** argv, char** env) {
 			strcpy(SaveModel_File, SaveModel_File_tmp); //TODO onChange Close and open new trace file
 		}
 		ImGui::End();
-		int windowX = 550;
+		int windowX = 510;
 		int windowWidth = (VGA_WIDTH * VGA_SCALE_X) + 24;
 		int windowHeight = (VGA_HEIGHT * VGA_SCALE_Y) + 90;
 

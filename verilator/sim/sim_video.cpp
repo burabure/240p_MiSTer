@@ -214,7 +214,7 @@ int SimVideo::Initialise(const char* windowTitle) {
 	// Create application window
 	wc = { sizeof(WNDCLASSEX), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(NULL), NULL, NULL, NULL, NULL, _T(windowTitle), NULL };
 	RegisterClassEx(&wc);
-	hwnd = CreateWindow(wc.lpszClassName, _T(windowTitle), WS_OVERLAPPEDWINDOW, 100, 100, 1600, 1100, NULL, NULL, wc.hInstance, NULL);
+	hwnd = CreateWindow(wc.lpszClassName, _T(windowTitle), WS_OVERLAPPEDWINDOW, 100, 100, 1850, 1100, NULL, NULL, wc.hInstance, NULL);
 
 	// Initialize Direct3D
 	if (CreateDeviceD3D(hwnd) < 0)
