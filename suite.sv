@@ -261,6 +261,15 @@ module emu (
 
   //////////////////////////////////////////////////////////////////
 
+  // --- layer level
+  reg [3:0] layer_1_level = 4'd10;
+
+  always @(posedge joy[4]) begin
+    if (layer_1_level === 10) layer_1_level = 4'd0;
+    else layer_1_level = layer_1_level + 4'd1;
+  end
+
+  // --- Test Suite
   wire h_blank;
   wire v_blank;
 
@@ -272,7 +281,7 @@ module emu (
       .ioctl_addr(ioctl_addr[16:0]),
       .ioctl_data(ioctl_dout),
 
-      .layer_1_enable(~joy[4]),
+      .layer_1_level(layer_1_level),
 
       .ce_pix(CE_PIXEL),
       //.h_blank(h_blank),

@@ -63,6 +63,18 @@ module top (
   assign AUDIO_L = {audio, audio};
   assign AUDIO_R = AUDIO_L;
 
+  // --- layer level
+  reg [3:0] layer_1_level = 4'd10;
+
+  always @(posedge inputs[4]) begin
+    if (layer_1_level === 10) layer_1_level = 4'd0;
+    else layer_1_level = layer_1_level + 4'd1;
+
+    $display("button: %d", layer_1_level);
+  end
+
+  // --- Test Suite
+
   suite suite (
       .clk  (clk_sys),
       .reset(reset),
@@ -71,7 +83,7 @@ module top (
       .ioctl_addr(ioctl_addr[16:0]),
       .ioctl_data(ioctl_dout),
 
-      .layer_1_enable(playerinput[0]),
+      .layer_1_level(layer_1_level),
 
       .ce_pix(CE_PIXEL),
       .h_blank(VGA_HB),

@@ -12,7 +12,7 @@ module suite (
     // input pal,
     // input scandouble,
 
-    input layer_1_enable,
+    input [3:0] layer_1_level,
 
     output reg ce_pix,
     output wire h_blank,
@@ -93,7 +93,6 @@ module suite (
 
   // --- VRAM
   reg  [16:0] video_counter;
-  reg  [ 7:0] pixel;
   wire [ 7:0] layer_1;
   wire [ 7:0] layer_2;
 
@@ -133,28 +132,48 @@ module suite (
   end
 
   // layer rendering
+  // neg sys clk edge so layer compositing can keep up with the video clock
   always @(negedge clk) begin
     if (layer_2 == 8'd0) begin
-      if (layer_1 == 8'hFF && layer_1_enable) pixel <= 8'hFF;
-      else pixel <= 8'h00;
-
-    end else pixel <= layer_2;
+      if (layer_1 == 8'hFF) begin
+        case (layer_1_level)
+          4'd0: {r, g, b} <= {8'd0, 8'd0, 8'd0};
+          4'd1: {r, g, b} <= {8'd25, 8'd25, 8'd25};
+          4'd2: {r, g, b} <= {8'd51, 8'd51, 8'd51};
+          4'd3: {r, g, b} <= {8'd76, 8'd76, 8'd76};
+          4'd4: {r, g, b} <= {8'd102, 8'd102, 8'd102};
+          4'd5: {r, g, b} <= {8'd127, 8'd127, 8'd127};
+          4'd6: {r, g, b} <= {8'd153, 8'd153, 8'd153};
+          4'd7: {r, g, b} <= {8'd178, 8'd178, 8'd178};
+          4'd8: {r, g, b} <= {8'd204, 8'd204, 8'd204};
+          4'd9: {r, g, b} <= {8'd229, 8'd229, 8'd229};
+          4'd10: {r, g, b} <= {8'd255, 8'd255, 8'd255};
+          default: {r, g, b} <= {8'd0, 8'd0, 8'd0};
+        endcase
+      end else begin
+        {r, g, b} <= {8'h00, 8'h00, 8'h00};
+      end
+    end else begin
+      // seperate 8 bits into three colors (332)
+      r <= {layer_2[7:5], layer_2[7:5], layer_2[7:6]};
+      g <= {layer_2[4:2], layer_2[4:2], layer_2[4:3]};
+      b <= {layer_2[1:0], layer_2[1:0], layer_2[1:0], layer_2[1:0]};
+    end
   end
-
-  // seperate 8 bits into three colors (332)
-  assign r  = {pixel[7:5], pixel[7:5], pixel[7:6]};
-  assign g  = {pixel[4:2], pixel[4:2], pixel[4:3]};
-  assign b  = {pixel[1:0], pixel[1:0], pixel[1:0], pixel[1:0]};
 
   assign de = ~(h_blank | v_blank);
 
   // --- Logging
   always @(posedge clk) begin
     if (ce_pix) begin
-      if ((hc < 4 || hc > H - 4 && hc < H + 2) && (vc < 4 || vc > V - 4 && vc < V + 2)) begin
-        $display("HC: %d - VC: %d - VidC: %d - DE: %d - Pixel: %h", hc, vc, video_counter, de,
-                 pixel);
-      end
+      // if ((hc < 4 || hc > H - 4 && hc < H + 2) && (vc < 4 || vc > V - 4 && vc < V + 2)) begin
+      //   $display("HC: %d - VC: %d - VidC: %d - DE: %d - Pixel: %h", hc, vc, video_counter, de,
+      //            pixel);
+      // end
+
+      // if (vc === VTOTAL) begin
+      //   $display("r: %h - g: %h - b: %h", r, g, b);
+      // end
     end
   end
 
