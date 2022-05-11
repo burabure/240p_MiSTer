@@ -5,7 +5,7 @@ module top (
 
     input clk_sys  /*verilator public_flat*/,
     input reset  /*verilator public_flat*/,
-    input [11:0] inputs  /*verilator public_flat*/,
+    input [31:0] inputs  /*verilator public_flat*/,
 
     output [7:0] VGA_R  /*verilator public_flat*/,
     output [7:0] VGA_G  /*verilator public_flat*/,
@@ -63,34 +63,21 @@ module top (
   assign AUDIO_L = {audio, audio};
   assign AUDIO_R = AUDIO_L;
 
-  // --- layer level
-  reg [3:0] layer_1_level = 4'd10;
-
-  always @(posedge inputs[4]) begin
-    if (layer_1_level === 10) layer_1_level = 4'd0;
-    else layer_1_level = layer_1_level + 4'd1;
-
-    $display("button: %d", layer_1_level);
-  end
 
   // --- Test Suite
-
   suite suite (
-      .clk  (clk_sys),
+      .clk(clk_sys),
       .reset(reset),
-
-      .ioctl_wr  (ioctl_wr & ioctl_download),
+      .ioctl_wr(ioctl_wr & ioctl_download),
       .ioctl_addr(ioctl_addr[16:0]),
       .ioctl_data(ioctl_dout),
-
-      .layer_1_level(layer_1_level),
-
+      .joy(inputs),
       .ce_pix(CE_PIXEL),
       .h_blank(VGA_HB),
       .v_blank(VGA_VB),
       .h_sync(VGA_HS),
       .v_sync(VGA_VS),
-      .de(),  // VGA_DE
+      .de(),  // VGA_DE not on verilator
       .r(VGA_R),
       .g(VGA_G),
       .b(VGA_B)

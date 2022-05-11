@@ -201,16 +201,7 @@ module emu (
 
   `include "build_id.v"
   localparam CONF_STR = {
-    "240p Suite;;",
-    "F1,BIN,Load Image;",
-    "-;",
-    "O89,Aspect ratio,Original,Full Screen,[ARC1],[ARC2];",
-    "-;",
-    "T0,Reset;",
-    "R0,Reset and close OSD;",
-    "-;",
-    "V,v",
-    `BUILD_DATE
+    "240p Suite;;", "T0,Reset;", "R0,Reset and close OSD;", "-;", "V,v", `BUILD_DATE
   };
 
   // wire forced_scandoubler;
@@ -261,31 +252,15 @@ module emu (
 
   //////////////////////////////////////////////////////////////////
 
-  // --- layer level
-  reg [3:0] layer_1_level = 4'd10;
-
-  always @(posedge joy[4]) begin
-    if (layer_1_level === 10) layer_1_level = 4'd0;
-    else layer_1_level = layer_1_level + 4'd1;
-  end
-
   // --- Test Suite
-  wire h_blank;
-  wire v_blank;
-
   suite suite (
-      .clk  (clk_sys),
+      .clk(clk_sys),
       .reset(reset),
-
-      .ioctl_wr  (ioctl_wr & ioctl_download),
+      .ioctl_wr(ioctl_wr & ioctl_download),
       .ioctl_addr(ioctl_addr[16:0]),
       .ioctl_data(ioctl_dout),
-
-      .layer_1_level(layer_1_level),
-
+      .joy(joy),
       .ce_pix(CE_PIXEL),
-      //.h_blank(h_blank),
-      //.v_blank(v_blank),
       .h_sync(VGA_HS),
       .v_sync(VGA_VS),
       .de(VGA_DE),
